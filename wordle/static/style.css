@@ -1,0 +1,106 @@
+body {
+  background-color: #121212;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding-top: 40px;
+  color: #f0f0f0;
+}
+
+.row {
+  margin-bottom: 10px;
+}
+
+.cell {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 60px;
+  border: 2px solid #444;
+  background-color: #1e1e1e;
+  margin: 2px;
+}
+
+.tile {
+  width: 100%;
+  height: 100%;
+  line-height: 60px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: transparent;
+  color: #f0f0f0;
+}
+
+.tile.correct { background-color: #6aaa64; color: white; }
+.tile.present { background-color: #c9b458; color: white; }
+.tile.absent  { background-color: #787c7e; color: white; }
+
+.reveal {
+  opacity: 0;
+  transform: rotateX(90deg);
+  animation: flipIn 0.4s ease forwards;
+}
+
+.delay-0 { animation-delay: 0s; }
+.delay-1 { animation-delay: 0.3s; }
+.delay-2 { animation-delay: 0.6s; }
+.delay-3 { animation-delay: 0.9s; }
+.delay-4 { animation-delay: 1.2s; }
+
+@keyframes flipIn {
+  0%   { transform: rotateX(90deg); opacity: 0; }
+  50%  { transform: rotateX(0deg); opacity: 1; }
+  100% { transform: rotateX(0deg); opacity: 1; }
+}
+
+#difficulty-container {
+  position: fixed;
+  top: 240px; /* aligned with 3rd row */
+  left: calc(33.33% - 130px); /* middle of 1st column minus half width of selector */
+  background-color: #2c2c2c;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #555;
+  z-index: 10;
+}
+
+#difficulty-container label,
+#difficulty-container select {
+  color: #f0f0f0;              /* Light text */
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 16px;
+  outline: none;
+  cursor: pointer;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Unique override for label */
+#difficulty-container label {
+  background-color: #2c2c2c;
+  padding-bottom: 8px;
+}
+
+/* Unique override for select */
+#difficulty-container select {
+  background-color: #3a3a3a;
+}
+
+#difficulty-container select:hover:not(:disabled) {
+  background-color: #4a4a4a; /* Slightly lighter grey on hover */
+  transition: background-color 0.2s ease;
+}
+
+/* Locked state when disabled */
+#difficulty-container select:disabled {
+  background-color: #2b2b2b;   /* Slightly darker to indicate lock */
+  color: #888;
+  cursor: not-allowed;
+  opacity: 1;
+}

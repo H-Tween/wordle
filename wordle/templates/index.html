@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wordle</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h1>Wordle</h1>
+
+
+  <! Incoming message (Out of guesses, correct guess, or error message)>
+  {% if message %}
+    <p><strong>{{ message }}</strong></p>
+  {% endif %}
+
+  <div id="difficulty-container">
+    <label for="difficulty">Difficulty:</label><br>
+    <select id="difficulty" onchange="changeDifficulty()" {% if guesses|length > 0 %}disabled{% endif %}>
+      <option value="easy" {% if difficulty == 'easy' %}selected{% endif %}>Easy</option>
+      <option value="normal" {% if difficulty == 'normal' %}selected{% endif %}>Normal</option>
+      <option value="hard" {% if difficulty == 'hard' %}selected{% endif %}>Hard</option>
+    </select>
+  </div>
+
+
+  <div id="board">
+    {% for row in range(max_guesses) %}
+      <div class="row">
+        {% if guesses|length > row %}
+          {% set guess, feedback = guesses[row] %}
+          {% for i in range(5) %}
+            <div class="cell">
+              {% if row == animate_row %}
+                <div class="tile reveal delay-{{ i }} {{ feedback[i] }}" data-letter="{{ guess[i] }}"></div>
+              {% else %}
+                <div class="tile {{ feedback[i] }}">{{ guess[i] }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% elif guesses|length == row %}
+          {% for i in range(5) %}
+            <div class="cell">
+              <div class="tile">{{ current_input[i] if current_input|length > i else "" }}</div>
+            </div>
+          {% endfor %}
+        {% else %}
+          {% for i in range(5) %}
+            <div class="cell"><div class="tile"></div></div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <br>
+  <a href="{{ url_for('reset') }}">Reset Game</a>
+
+  {% if game_over %}
+    <p id="countdown">Next word in: <span id="timer"></span></p>
+  {% endif %}
+
+  <!-- Hidden form to simulate keyboard input -->
+  <form id="typeForm" method="POST" action="{{ url_for('type_letter') }}" style="display: none;">
+    <input type="hidden" name="key" id="keyInput">
+  </form>
+
+  <script>
+    let isAnimating = false;
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const tiles = document.querySelectorAll(".reveal");
+
+      // Only activate animation lock if tiles exist (i.e., guess was submitted)
+      if (tiles.length > 0) {
+        isAnimating = true;
+        tiles.forEach((tile, i) => {
+          const delay = i * 300;
+          setTimeout(() => {
+            tile.textContent = tile.dataset.letter;
+          }, delay);
+        });
+
+        const totalDelay = tiles.length * 300;
+        setTimeout(() => {
+          isAnimating = false;
+        }, totalDelay + 300);
+      }
+    });
+
+    {% if not game_over %}
+    window.addEventListener("keydown", (e) => {
+      if (isAnimating) return;
+
+      const form = document.getElementById("typeForm");
+      const input = document.getElementById("keyInput");
+
+      if (/^[a-zA-Z]$/.test(e.key)) {
+        input.value = e.key.toUpperCase();
+      } else if (e.key === "Backspace") {
+        input.value = "BACKSPACE";
+      } else if (e.key === "Enter") {
+        input.value = "ENTER";
+      } else {
+        return;
+      }
+
+      form.submit();
+    });
+    {% endif %}
+  </script>
+
+  <script>
+    function changeDifficulty() {
+      const select = document.getElementById("difficulty");
+      const level = select.value;
+      window.location.href = "/set_difficulty/" + level;
+    }
+  </script>
+
+  {% if next_word_time %}
+  <script>
+    let seconds = {{ next_word_time }};
+    const timerEl = document.getElementById("timer");
+
+    function format(sec) {
+      const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
+
+    function tick() {
+      if (timerEl) {
+        timerEl.textContent = format(seconds);
+      }
+
+      seconds--;
+
+      // When it hits 0, reset it to 86400 (24 hours)
+      if (seconds < 0) {
+        seconds = 86400; // reset to 24 hours
+      }
+
+      setTimeout(tick, 1000);
+    }
+
+    tick();
+  </script>
+  {% endif %}
+
+
+</body>
+</html>
