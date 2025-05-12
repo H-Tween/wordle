@@ -18,7 +18,7 @@ DATABASE_URL = secret_block.get()
 engine = create_engine(DATABASE_URL)
 
 # Initialize dictionary checker
-dictionary = enchant.Dict("en_US")
+dictionary = enchant.Dict("en_GB")
 
 # Select a new word daily
 def get_daily_word():
