@@ -4,7 +4,7 @@
 ### Steps to run
 1. The database must be running in google cloud (This is how the daily word is retrieved)
 2. Run prefect cloud login (Used to get the cloud DB URL secret)
-3. Run main.py locally
+3. Run main.py 
 
 ### Steps to update the database manually
 
